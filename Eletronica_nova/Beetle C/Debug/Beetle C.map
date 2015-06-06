@@ -522,10 +522,10 @@ END GROUP
  *(.debug_frame)
  .debug_frame   0x00000000       0xc4 Beetle C.o
 
-.debug_str      0x00000000      0x246
+.debug_str      0x00000000      0x256
  *(.debug_str)
- .debug_str     0x00000000      0x246 Beetle C.o
-                                0x282 (size before relaxing)
+ .debug_str     0x00000000      0x256 Beetle C.o
+                                0x292 (size before relaxing)
 
 .debug_loc      0x00000000      0x30a
  *(.debug_loc)

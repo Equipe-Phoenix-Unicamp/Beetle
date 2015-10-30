@@ -48,7 +48,7 @@ ISR(TIMER2_OVF_vect)
 
 int main(void)
 {
-	CLKPR = 0; //Sets internal RC oscilator clock to 8MHz
+	// CLKPR = 0; //Sets internal RC oscilator clock to 8MHz
 	
 	TCCR0A |= (1 << COM0A1) | (1 << COM0B1) | (1 << WGM00) | (1 << WGM01); // Configures PWM on pin OC0A and OC0B
 	TCCR0B |= (1 << CS00);
@@ -71,54 +71,60 @@ int main(void)
 	TCCR2B |= (1 << CS22); //Timer2 Configuration, prescaler to 64
 	TIMSK2 |= (1 << TOIE2); //Enables ovf interrupt
 	
+	// WDTCSR |= (1 << WDCE);
+	// WDTCSR |= (1 << WDE) | (1 << WDP2) | (1 << WDP1);
+	
 	OCR0A = 0;
 	OCR0B = 0;
 	TCCR0A &= ~(1 << COM0B1);
 	
-	OCR1A = 100;
+	OCR1A = 0;
 	OCR1B = 0;
 	TCCR1A &= ~(1 << COM1B1);
 	
 	sei(); //Interrupts ON
-	
+
 	int16_t pwm0 = 0;
 	int16_t pwm1 = 0;
+	int16_t pwmdir = 0;
+	int16_t pwmesq = 0;
 	while(1)
 	{
-		OCR0A = ch0;
-	}
-	while(1)
-	{
-		//117 is 1.5s
-		//195 is 2.5s
-		pwm0 = (ch0 - 156)*6.5;
-		pwm1 = (ch1 - 156)*6.5;
+		// asm("WDR");
+		//250 is 2.0s - MAX
+		//150 is 1.2s - MIN
+		pwm0 = (ch0 - 200)*5;
+		pwm1 = (ch1 - 200)*5;
 		
-		if (pwm0 < 0)
+		//Assuming PD3(INT1) horizontal and PD2(INT0) vertical:
+		pwmdir = pwm0 + pwm1;
+		pwmesq = pwm0 - pwm1;
+		
+		if (pwmdir < 0)
 		{
 			TCCR0A &= ~(1 << COM0B1);
 			TCCR0A |= (1 << COM0A1);
-			OCR0A = -pwm0;
+			OCR0A = -pwmdir>255?255:-pwmdir;
 		}
 		else
 		{
 			TCCR0A &= ~(1 << COM0A1);
 			TCCR0A |= (1 << COM0B1);
-			OCR0B = pwm0;
+			OCR0B = pwmdir>255?255:pwmdir;
 			
 		}
 		
-		if (pwm1 < 0)
+		if (pwmesq < 0)
 		{
 			TCCR1A &= ~(1 << COM1B1);
 			TCCR1A |= (1 << COM1A1);
-			OCR1A = -pwm1;
+			OCR1A = -pwmesq>255?255:-pwmesq;
 		}
 		else
 		{
 			TCCR1A &= ~(1 << COM1A1);
 			TCCR1A |= (1 << COM1B1);
-			OCR1B = pwm1;
+			OCR1B = pwmesq>255?255:pwmesq;
 		}
 		
 	}

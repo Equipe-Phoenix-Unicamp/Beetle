@@ -1,9 +1,12 @@
 #define F_CPU 8000000
 
+#define MAX_POW 200
+
 #include <stdint.h>
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
+// #include <avr/power.h>
 
 
 /***********************************************************************************************************************************/
@@ -74,13 +77,19 @@ int main(void)
 	// WDTCSR |= (1 << WDCE);
 	// WDTCSR |= (1 << WDE) | (1 << WDP2) | (1 << WDP1);
 	
-	OCR0A = 0;
+	OCR0A = 100;
 	OCR0B = 0;
 	TCCR0A &= ~(1 << COM0B1);
 	
-	OCR1A = 0;
+	OCR1A = 100;
 	OCR1B = 0;
 	TCCR1A &= ~(1 << COM1B1);
+	
+	// CLKPR |= (1 << CLKPCE); //Enables change to CLKPR
+	// CLKPR = 0;
+	// CLKPR = 0;
+	
+	// clock_prescale_set(clock_div_1); //Disables CLKDIV8
 	
 	sei(); //Interrupts ON
 
@@ -88,9 +97,20 @@ int main(void)
 	int16_t pwm1 = 0;
 	int16_t pwmdir = 0;
 	int16_t pwmesq = 0;
+	
 	while(1)
 	{
+		if (!(PINB & (1 << PB4)) || !(PINB & (1 << PB3)))
+		{
+			TCCR0A &= ~(1 << COM0B1) & ~(1 << COM0A1);
+			TCCR1A &= ~(1 << COM1B1) & ~(1 << COM1A1);
+			
+			PORTB &= ~(1 << PB5) & ~(1 << PB7);
+			_delay_ms(30);
+			PORTB |= (1 << PB5) | (1 << PB7);
+		}
 		// asm("WDR");
+		
 		//250 is 2.0s - MAX
 		//150 is 1.2s - MIN
 		pwm0 = (ch0 - 200)*5;
@@ -104,13 +124,13 @@ int main(void)
 		{
 			TCCR0A &= ~(1 << COM0B1);
 			TCCR0A |= (1 << COM0A1);
-			OCR0A = -pwmdir>255?255:-pwmdir;
+			OCR0A = -pwmdir>MAX_POW?MAX_POW:-pwmdir;
 		}
 		else
 		{
 			TCCR0A &= ~(1 << COM0A1);
 			TCCR0A |= (1 << COM0B1);
-			OCR0B = pwmdir>255?255:pwmdir;
+			OCR0B = pwmdir>MAX_POW?MAX_POW:pwmdir;
 			
 		}
 		
@@ -118,13 +138,13 @@ int main(void)
 		{
 			TCCR1A &= ~(1 << COM1B1);
 			TCCR1A |= (1 << COM1A1);
-			OCR1A = -pwmesq>255?255:-pwmesq;
+			OCR1A = -pwmesq>MAX_POW?MAX_POW:-pwmesq;
 		}
 		else
 		{
 			TCCR1A &= ~(1 << COM1A1);
 			TCCR1A |= (1 << COM1B1);
-			OCR1B = pwmesq>255?255:pwmesq;
+			OCR1B = pwmesq>MAX_POW?MAX_POW:pwmesq;
 		}
 		
 	}

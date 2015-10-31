@@ -6,7 +6,7 @@ OBJCPY_avr = avr-objcopy
 F_avr = -mmcu=atmega88p -Os
 
 all: $(FILE).o $(FILE).hex
-	avrdude -p atmega88p -P $(PORT) -c avrispv2 -U flash:w:$(FILE).hex
+	avrdude -p atmega88pb -P $(PORT) -c avrispv2 -U flash:w:$(FILE).hex
 	
 %.o: %.c
 	$(CC_avr) $(F_avr) $(INCLUDE_avr) $^ -o $@

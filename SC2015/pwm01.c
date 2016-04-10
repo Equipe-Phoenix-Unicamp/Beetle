@@ -93,8 +93,8 @@ int main(void)
 	
 	sei(); //Interrupts ON
 
-	int16_t pwm0 = 0;
-	int16_t pwm1 = 0;
+	// int16_t pwm0 = 0;
+	// int16_t pwm1 = 0;
 	int16_t pwmdir = 0;
 	int16_t pwmesq = 0;
 	
@@ -113,12 +113,12 @@ int main(void)
 		
 		//250 is 2.0s - MAX
 		//150 is 1.2s - MIN
-		pwm0 = (ch0 - 200)*5;
-		pwm1 = (ch1 - 200)*5;
+		// pwm0 = (ch0 - 200)*5;
+		// pwm1 = (ch1 - 200)*5;
 		
 		//Assuming PD3(INT1) horizontal and PD2(INT0) vertical:
-		pwmdir = pwm0 + pwm1;
-		pwmesq = pwm0 - pwm1;
+		pwmdir = 5*(ch0+ch1-400);
+		pwmesq = 5*(ch0-ch1);
 		
 		if (pwmdir < 0)
 		{

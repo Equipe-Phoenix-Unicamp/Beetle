@@ -3,10 +3,10 @@ FILE = main
 
 CC_avr = avr-gcc
 OBJCPY_avr = avr-objcopy
-F_avr = -mmcu=atmega88p -Os
+F_avr = -mmcu=atmega328p -Os
 
 all: $(FILE).o $(FILE).hex
-	avrdude -p atmega88pb -P $(PORT) -c avrispv2 -U flash:w:$(FILE).hex
+	avrdude -p atmega328pb -P $(PORT) -c avrispv2 -U flash:w:$(FILE).hex
 	
 %.o: %.c
 	$(CC_avr) $(F_avr) $(INCLUDE_avr) $^ -o $@
@@ -16,3 +16,5 @@ all: $(FILE).o $(FILE).hex
 
 clean:
 	rm *.o *.hex
+hello:
+	echo "Hello"
